@@ -1,0 +1,34 @@
+for HOST in master1 node1 node2 node3
+do
+  echo $HOST
+  qemu-img create -f qcow2 $HOST.qcow2 20G
+  cat <<EOF > $HOST.ks 
+install
+rootpw --plaintext fedora
+auth --enableshadow --passalgo=sha512
+keyboard --vckeymap=us --xlayouts='us'
+lang en_US.UTF-8
+timezone --isUtc Europe/London   
+network --device link --activate --hostname $HOST
+
+# Wipe all disk
+zerombr
+bootloader
+clearpart --all --initlabel
+autopart --type=plain
+
+# Package source
+# There's currently no way of using default online repos in a kickstart, see:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1333362
+# https://bugzilla.redhat.com/show_bug.cgi?id=1333375
+# So we default to fedora+updates and exclude updates-testing, which is the safer choice.
+url --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-\$releasever&arch=\$basearch
+repo --name=fedora
+repo --name=updates
+#repo --name=updates-testing
+
+%packages
+@^minimal-environment
+%end
+EOF
+done
