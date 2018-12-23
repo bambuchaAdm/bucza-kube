@@ -12,3 +12,11 @@ Toolchain
 + kickstart
 
 
+Usage
+-----
+
+```
+sudo bash bootstrap.sh
+```
+
+
