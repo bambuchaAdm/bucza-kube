@@ -36,7 +36,7 @@ zerombr
 bootloader
 clearpart --all --initlabel
 autopart --type=plain
-poweroff
+shutdown
 
 # Package source
 # There's currently no way of using default online repos in a kickstart, see:
@@ -75,6 +75,7 @@ then
     --console pty,target_type=serial \
     --location Fedora-Server-netinst-x86_64-29-1.2.iso \
     --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text"
+    --noreboot
 fi
 
 done
