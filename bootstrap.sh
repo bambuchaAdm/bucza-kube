@@ -1,6 +1,6 @@
 set -e
 
-HOSTS="test"
+HOSTS="master1 node1 node2"
 USER="bambucha"
 
 if [ ! -f "bucza-kube" ] 
@@ -59,8 +59,10 @@ repo --name=updates
 set -e
 mkdir /home/$USER/.ssh
 chmod 700 /home/$USER/.ssh
+chown $USER:$USER /home/$USER/.ssh
 echo "$(cat bucza-kube.pub)" >> /home/$USER/.ssh/authorized_keys
 chmod 600 /home/$USER/.ssh/authorized_keys
+chown $USER:$USER /home/$USER/.ssh/authorized_keys
 %end
 EOF
 
@@ -75,7 +77,7 @@ EOF
       --graphics none \
       --console pty,target_type=serial \
       --location Fedora-Server-netinst-x86_64-29-1.2.iso \
-      --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text"
+      --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text" \
       --noreboot
   fi
 
