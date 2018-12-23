@@ -1,6 +1,6 @@
 set -e
 
-HOSTS="master1 node1"
+HOSTS="test"
 USER="bambucha"
 
 if [ ! -f "bucza-kube" ] 
@@ -20,8 +20,11 @@ fi
 for HOST in $HOSTS
 do
   echo $HOST
-  qemu-img create -f qcow2 $HOST.qcow2 20G
-  cat <<EOF > $HOST.ks
+  if ! virsh dominfo $HOST
+  then
+
+    qemu-img create -f qcow2 $HOST.qcow2 20G
+    cat <<EOF > $HOST.ks
 install
 rootpw --plaintext fedora
 auth --enableshadow --passalgo=sha512
@@ -52,30 +55,28 @@ repo --name=updates
 @^minimal-environment
 %end
 
-%post --nochroot
+%post --log=/root/ks-post.log
 set -e
 mkdir /home/$USER/.ssh
 chmod 700 /home/$USER/.ssh
-echo "$(cat $bucza-kube.pub)" >> /home/$USER/.ssh/authorized_keys
+echo "$(cat bucza-kube.pub)" >> /home/$USER/.ssh/authorized_keys
 chmod 600 /home/$USER/.ssh/authorized_keys
 %end
 EOF
 
-if ! virsh dominfo $HOST
-then
-  sudo virt-install \
-    --name=$HOST \
-    --ram 4096 \
-    --vcpus 4 \
-    --disk path=$HOST.qcow2 \
-    --os-variant=fedora29 \
-    --os-type=linux \
-    --network network=bucza-kube \
-    --graphics none \
-    --console pty,target_type=serial \
-    --location Fedora-Server-netinst-x86_64-29-1.2.iso \
-    --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text"
-    --noreboot
-fi
+    sudo virt-install \
+      --name=$HOST \
+      --ram 4096 \
+      --vcpus 4 \
+      --disk path=$HOST.qcow2 \
+      --os-variant=fedora29 \
+      --os-type=linux \
+      --network network=bucza-kube \
+      --graphics none \
+      --console pty,target_type=serial \
+      --location Fedora-Server-netinst-x86_64-29-1.2.iso \
+      --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text"
+      --noreboot
+  fi
 
 done
