@@ -1,6 +1,6 @@
 set -e
 
-HOSTS="test"
+HOSTS="master1 node1"
 USER="bambucha"
 
 if [ ! -f "bucza-kube" ] 
