@@ -45,17 +45,20 @@ repo --name=updates
 %end
 EOF
 
-sudo virt-install \
-  --name=master-1 \
-  --ram 4096 \
-  --vcpus 4 \
-  --disk path=master1.qcow2 \
-  --os-variant=fedora29 \
-  --os-type=linux \
-  --network network=bucza-kube \
-  --graphics none \
-  --console pty,target_type=serial \
-  --location Fedora-Server-netinst-x86_64-29-1.2.iso \
-  --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text"
+if ! virsh dominfo $HOST
+then
+  sudo virt-install \
+    --name=$HOST \
+    --ram 4096 \
+    --vcpus 4 \
+    --disk path=master1.qcow2 \
+    --os-variant=fedora29 \
+    --os-type=linux \
+    --network network=bucza-kube \
+    --graphics none \
+    --console pty,target_type=serial \
+    --location Fedora-Server-netinst-x86_64-29-1.2.iso \
+    --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text halt"
+fi
 
 done
