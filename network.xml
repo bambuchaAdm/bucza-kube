@@ -1,0 +1,11 @@
+<network>
+  <name>bucza-kube</name>
+  <bridge name="virbr200" />
+  <forward mode="nat" />
+  <domain name="bucza-kube.org" localOnly="yes" />
+  <ip address="10.200.0.1" netmask="255.255.0.0">
+    <dhcp>
+      <range start="10.200.0.10" end="10.200.0.100"/>
+    </dhcp>
+  </ip>
+</network>
