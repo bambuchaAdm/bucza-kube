@@ -1,6 +1,12 @@
 set -e
 
-HOSTS="master1 node1"
+HOSTS="test"
+USER="bambucha"
+
+if [ ! -f "bucza-kube" ] 
+then
+  ssh-keygen -f "bucza-kube" -N ''
+fi
 
 if [ -f "./Fedora-Server-netinst-x86_64-29-1.2.iso" ]
 then
@@ -23,12 +29,14 @@ keyboard --vckeymap=us --xlayouts='us'
 lang en_US.UTF-8
 timezone --isUtc Europe/London
 network --device link --activate --hostname $HOST
+user --name bambucha --groups wheel --iscrypted --password '$6$y1FZ64mvklbpOPID$Af4FIh8JRcInr7yxjBK6ILG6mNog3cUPY3YTJwcnE4rYDkS/DhpokWeosborNMOizvwC7tu9MhPrBkSbWHf93/'
 
 # Wipe all disk
 zerombr
 bootloader
 clearpart --all --initlabel
 autopart --type=plain
+poweroff
 
 # Package source
 # There's currently no way of using default online repos in a kickstart, see:
@@ -42,6 +50,14 @@ repo --name=updates
 
 %packages
 @^minimal-environment
+%end
+
+%post --nochroot
+set -e
+mkdir /home/$USER/.ssh
+chmod 700 /home/$USER/.ssh
+echo "$(cat $bucza-kube.pub)" >> /home/$USER/.ssh/authorized_keys
+chmod 600 /home/$USER/.ssh/authorized_keys
 %end
 EOF
 
@@ -58,7 +74,7 @@ then
     --graphics none \
     --console pty,target_type=serial \
     --location Fedora-Server-netinst-x86_64-29-1.2.iso \
-    --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text halt"
+    --extra-args "console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks inst.text"
 fi
 
 done
