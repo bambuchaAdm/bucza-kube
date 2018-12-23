@@ -51,7 +51,7 @@ then
     --name=$HOST \
     --ram 4096 \
     --vcpus 4 \
-    --disk path=master1.qcow2 \
+    --disk path=$HOST.qcow2 \
     --os-variant=fedora29 \
     --os-type=linux \
     --network network=bucza-kube \
