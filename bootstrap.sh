@@ -18,7 +18,7 @@ rootpw --plaintext fedora
 auth --enableshadow --passalgo=sha512
 keyboard --vckeymap=us --xlayouts='us'
 lang en_US.UTF-8
-timezone --isUtc Europe/London   
+timezone --isUtc Europe/London
 network --device link --activate --hostname $HOST
 
 # Wipe all disk
@@ -42,16 +42,17 @@ repo --name=updates
 %end
 EOF
 
-#sudo virt-install \
-#  --name bucza-kube-m1 \
-#  --ram 4096 \
-#  --vcpus 4  \
-#  --disk path=~/vms/bucza-kube/master1.qcow2 \
-#  --os-variant=fedora29 \
-#  --os-type=linux \
-#  --network network=bucza-kube \
-#  --graphics none 
-#  --console pty,target_type=serial \
-#  --location 'http://fedora.inode.at/releases/29/Server/x86_64/os/' \
-#  --extra-args 'console=ttyS0,115200n8 serial inst.cmdline inst.sshd'
+sudo virt-install \
+  --name=master-1 \
+  --ram 4096 \
+  --vcpus 4 \
+  --disk path=~/vms/bucza-kube/master1.qcow2 \
+  --os-variant=fedora29 \
+  --os-type=linux \
+  --network network=bucza-kube \
+  --graphics none \
+  --console pty,target_type=serial \
+  --location ~/iso/fedora-29-server-netinst.iso \
+  --extra-args 'console=ttyS0,115200n8 serial ks=http://10.200.0.1:8000/$HOST.ks'
+
 done
